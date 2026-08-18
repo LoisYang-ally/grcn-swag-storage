@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google GrCN Play Team Swag Storage</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card-bg: #ffffff;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+      --accent-hover: #374151;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 40px 16px; }
+    .container { width: 100%; max-width: 680px; }
+
+    header { margin-bottom: 24px; }
+    h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+    p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+    /* Navigation Tabs */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: var(--text); background: #f3f4f6; }
+    .tab-btn.active { color: #fff; background: var(--accent); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+
+    .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    input, select, button {
+      font-size: 14px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      outline: none;
+    }
+    input, select { flex: 1; min-width: 120px; background: #fff; }
+    input:focus, select:focus { border-color: var(--accent); }
+
+    .file-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 160px;
+    }
+    .file-input-wrapper input[type="file"] {
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: #f9fafb;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    button.btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: var(--text);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { background: #e5e7eb; }
+
+    .btn-small {
+      padding: 5px 9px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .btn-small:hover { background: #f3f4f6; }
+    .btn-save { background: var(--accent); color: #fff; border: none; }
+    .btn-save:hover { background: var(--accent-hover); }
+    .btn-danger { color: var(--danger); }
+    .btn-danger:hover { background: #fee2e2; border-color: #fca5a5; }
+
+    /* Take Swag Cart */
+    .cart-box {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+    .cart-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cart-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    /* Category Blocks */
+    .category-block {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #fdfdfd;
+    }
+    .category-block:last-child { margin-bottom: 0; }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .category-title { font-weight: 600; font-size: 15px; letter-spacing: -0.2px; }
+    .category-actions { display: flex; gap: 6px; }
+
+    /* Inventory Items */
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .item-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      flex: 1;
+    }
+    
+    .item-thumb {
+      width: 84px;
+      height: 84px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      background: #f3f4f6;
+      flex-shrink: 0;
+      cursor: zoom-in;
+    }
+
+    .item-thumb-placeholder {
+      width: 84px;
+      height: 84px;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .item-info { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .item-name { font-weight: 600; font-size: 15px; }
+    
+    .variant-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .variant-pill {
+      background: #f3f4f6;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text);
+    }
+    .variant-pill strong { font-weight: 600; }
+    .variant-pill.out-of-stock {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .item-actions { display: flex; gap: 6px; margin-left: 8px; }
+
+    /* Inline Variant Edit */
+    .edit-container { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .variant-edit-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .variant-edit-row { display: flex; gap: 6px; align-items: center; }
+    .variant-edit-row input { padding: 6px 8px; font-size: 13px; }
+
+    /* History Log */
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .history-card-header h2 { margin-bottom: 0; }
+    .history-list { display: flex; flex-direction: column; gap: 10px; }
+    .history-item {
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .history-user { font-weight: 600; color: var(--text); }
+    .history-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .history-tag {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 20px 0;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      cursor: zoom-out;
+    }
+    .lightbox-modal.active { display: flex; }
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+    }
+
+    /* Checkout Success Modal */
+    .success-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .success-modal-overlay.active { display: flex; }
+    .success-modal {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.94); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-icon {
+      width: 48px;
+      height: 48px;
+      background: #ecfdf5;
+      color: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 16px;
+      border: 1px solid #a7f3d0;
+    }
+    .success-modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .success-modal p.summary-msg { font-size: 14px; color: var(--text-muted); margin-bottom: 18px; }
+    .success-summary-box {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+      margin-bottom: 20px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .success-summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .success-summary-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Google GrCN Play Team Swag Storage</h1>
+    <p class="subtitle">Organize swag by category and size variants with unified photos.</p>
+  </header>
+
+  <!-- Sub-page Tabs -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('inventoryTab', event)">Storage & Checkout</button>
+    <button class="tab-btn" onclick="switchTab('historyTab', event)">Checkout History</button>
+  </div>
+
+  <!-- TAB 1: Inventory & Checkout -->
+  <div id="inventoryTab" class="tab-content active">
+    <!-- Take Swag Section -->
+    <div class="card">
+      <h2>Take Swag</h2>
+      <form id="addToCartForm" class="form-row">
+        <select id="takeSelect" required style="flex: 2;">
+          <option value="" disabled selected>Select item & size</option>
+        </select>
+        <input type="number" id="takeQty" placeholder="Qty" min="1" required style="max-width: 80px; min-width: 60px;">
+        <button type="submit" class="btn-secondary">+ Add to List</button>
+      </form>
+
+      <div id="cartSection" class="cart-box" style="display: none;">
+        <div class="cart-header">Items to take</div>
+        <div id="cartList" class="cart-list"></div>
+        <form id="checkoutForm" class="form-row" style="margin-top: 12px; margin-bottom: 0;">
+          <input type="text" id="takerName" placeholder="Your name (e.g., Alex Chen)" required>
+          <button type="submit" class="btn-primary">Confirm & Take All</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Current Inventory Grouped by Categories -->
+    <div class="card">
+      <h2>Current Inventory</h2>
+      <div id="categoryContainer"></div>
+    </div>
+
+    <!-- Add Item / Restock -->
+    <div class="card">
+      <h2>Add New Item / Variant</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Adding an existing item name with a new size will group it under the same picture automatically.</p>
+      <form id="addItemForm" class="form-row">
+        <select id="categorySelect" required>
+          <option value="" disabled selected>Select category</option>
+        </select>
+        <input type="text" id="itemName" placeholder="Item name (e.g., Zip Hoodie)" required>
+        <input type="text" id="itemSize" placeholder="Size (e.g., L, XL, OS)" required style="max-width: 130px;">
+        <input type="number" id="itemQty" placeholder="Qty" min="0" required style="max-width: 80px;">
+        <div class="file-input-wrapper">
+          <input type="file" id="itemImage" accept="image/*" title="Optional Item Photo">
+        </div>
+        <button type="submit" class="btn-primary">Add / Restock</button>
+      </form>
+    </div>
+
+    <!-- Create New Category -->
+    <div class="card">
+      <h2>New Category</h2>
+      <form id="addCategoryForm" class="form-row">
+        <input type="text" id="newCategoryName" placeholder="Category name (e.g., Stationery)" required>
+        <button type="submit" class="btn-primary">Create Category</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAB 2: History Sub-Page -->
+  <div id="historyTab" class="tab-content">
+    <div class="card">
+      <div class="history-card-header">
+        <h2>Checkout History</h2>
+        <button class="btn-small btn-danger" onclick="clearHistory()">Clear History</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Lightbox Modal -->
+<div id="imageLightbox" class="lightbox-modal" onclick="closeLightbox()">
+  <img id="lightboxImg" class="lightbox-content" src="" alt="Swag Preview">
+</div>
+
+<!-- Checkout Success Popup Modal -->
+<div id="successModal" class="success-modal-overlay">
+  <div class="success-modal">
+    <div class="success-icon">✓</div>
+    <h3>Checkout Successful!</h3>
+    <p class="summary-msg" id="successSubtitle">Your swag has been logged.</p>
+    <div class="success-summary-box" id="successSummaryList"></div>
+    <button type="button" class="btn-primary" style="width: 100%;" onclick="closeSuccessModal()">Done</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'google_grcn_play_swag_v4_variants';
+  const HISTORY_KEY = 'google_grcn_play_swag_history_v4';
+
+  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+    {
+      id: 1,
+      name: 'Clothes',
+      items: [
+        {
+          id: 101,
+          name: 'Play Team Zip Hoodie',
+          image: '',
+          variants: [
+            { size: 'S', quantity: 8 },
+            { size: 'M', quantity: 15 },
+            { size: 'L', quantity: 12 },
+            { size: 'XL', quantity: 4 }
+          ]
+        },
+        {
+          id: 102,
+          name: 'Classic T-Shirt',
+          image: '',
+          variants: [
+            { size: 'M', quantity: 20 },
+            { size: 'L', quantity: 25 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Bags',
+      items: [
+        {
+          id: 201,
+          name: 'Canvas Tote Bag',
+          image: '',
+          variants: [
+            { size: 'One Size', quantity: 45 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Accessories',
+      items: [
+        {
+          id: 301,
+          name: 'Enamel Pin Set',
+          image: '',
+          variants: [
+            { size: 'Standard', quantity: 80 }
+          ]
+        }
+      ]
+    }
+  ];
+
+  let historyLogs = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  let cart = [];
+  let editingItemId = null;
+  let editingCategoryId = null;
+
+  function switchTab(tabId, evt) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    evt.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+
+    if (tabId === 'historyTab') {
+      renderHistory();
+    }
+  }
+
+  function saveAndRender() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(historyLogs));
+    } catch (e) {
+      alert('Local storage limit reached. Try uploading smaller pictures.');
+    }
+    renderInventory();
+    renderDropdowns();
+    renderCart();
+    renderHistory();
+  }
+
+  function findItem(itemId) {
+    for (const cat of data) {
+      const found = cat.items.find(i => i.id === itemId);
+      if (found) return { item: found, category: cat };
+    }
+    return null;
+  }
+
+  function compressImage(file, callback) {
+    if (!file) return callback('');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 480;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        callback(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openLightbox(src) {
+    if (!src) return;
+    const modal = document.getElementById('imageLightbox');
+    const img = document.getElementById('lightboxImg');
+    img.src = src;
+    modal.classList.add('active');
+  }
+
+  function closeLightbox() {
+    document.getElementById('imageLightbox').classList.remove('active');
+  }
+
+  function showSuccessModal(userName, items) {
+    const modal = document.getElementById('successModal');
+    const subtitle = document.getElementById('successSubtitle');
+    const list = document.getElementById('successSummaryList');
+
+    subtitle.textContent = `Thank you, ${userName}! Storage amounts have been updated.`;
+    list.innerHTML = items.map(item => `
+      <div class="success-summary-row">
+        <span><strong>${escapeHtml(item.name)}</strong> (${escapeHtml(item.size)})</span>
+        <span>&times; ${item.qty}</span>
+      </div>
+    `).join('');
+
+    modal.classList.add('active');
+  }
+
+  function closeSuccessModal() {
+    document.getElementById('successModal').classList.remove('active');
+  }
+
+  function renderInventory() {
+    const container = document.getElementById('categoryContainer');
+    if (data.length === 0) {
+      container.innerHTML = `<div class="empty-state">No categories available. Create one below.</div>`;
+      return;
+    }
+
+    container.innerHTML = data.map(cat => {
+      const isEditingCat = editingCategoryId === cat.id;
+
+      let categoryHeaderHtml = '';
+      if (isEditingCat) {
+        categoryHeaderHtml = `
+          <div class="category-header">
+            <div class="form-row" style="flex: 1; margin-bottom: 0;">
+              <input type="text" id="editCatName-${cat.id}" value="${escapeHtml(cat.name)}" placeholder="Category name">
+            </div>
+            <div class="category-actions">
+              <button class="btn-small btn-save" onclick="saveCategoryName(${cat.id})">Save</button>
+              <button class="btn-small" onclick="cancelCategoryEdit()">Cancel</button>
+            </div>
+          </div>
+        `;
+      } else {
+        categoryHeaderHtml = `
+          <div class="category-header">
+            <span class="category-title">${escapeHtml(cat.name)}</span>
+            <div class="category-actions">
+              <button class="btn-small" onclick="startCategoryEdit(${cat.id})">Rename</button>
+              <button class="btn-small btn-danger" onclick="deleteCategory(${cat.id})">Delete</button>
+            </div>
+          </div>
+        `;
+      }
+
+      let itemsHtml = '';
+      if (cat.items.length === 0) {
+        itemsHtml = `<div class="empty-state">No items in this category.</div>`;
+      } else {
+        itemsHtml = cat.items.map(item => {
+          if (editingItemId === item.id) {
+            return `
+              <div class="item-row">
+                <div class="edit-container">
+                  <div class="form-row" style="margin-bottom: 4px;">
+                    <input type="text" id="editItemName-${item.id}" value="${escapeHtml(item.name)}" placeholder="Item name">
+                    <input type="file" id="editItemImage-${item.id}" accept="image/*" style="font-size:12px;">
+                  </div>
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 4px;">Edit Sizes & Stock:</div>
+                  <div class="variant-edit-list" id="variantEditList-${item.id}">
+                    ${item.variants.map((v, vIndex) => `
+                      <div class="variant-edit-row" data-vindex="${vIndex}">
+                        <input type="text" class="v-size-input" value="${escapeHtml(v.size)}" placeholder="Size" style="max-width: 100px;">
+                        <input type="number" class="v-qty-input" value="${v.quantity}" min="0" placeholder="Qty" style="max-width: 80px;">
+                        <button type="button" class="btn-small btn-danger" onclick="removeVariantRow(this)">Remove</button>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div style="margin-top: 6px;">
+                    <button type="button" class="btn-small btn-secondary" onclick="addVariantRow(${item.id})">+ Add Size</button>
+                  </div>
+                  <div class="item-actions" style="margin-top: 8px;">
+                    <button class="btn-small btn-save" onclick="saveItemEdit(${item.id})">Save All Changes</button>
+                    <button class="btn-small" onclick="cancelItemEdit()">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          const thumbHtml = item.image 
+            ? `<img src="${item.image}" alt="${escapeHtml(item.name)}" class="item-thumb" onclick="openLightbox('${item.image}')" title="Click to view full size">`
+            : `<div class="item-thumb-placeholder">📦</div>`;
+
+          const variantPillsHtml = item.variants.map(v => {
+            const isOOS = v.quantity <= 0;
+            return `<span class="variant-pill ${isOOS ? 'out-of-stock' : ''}"><strong>${escapeHtml(v.size)}:</strong> ${v.quantity}</span>`;
+          }).join('');
+
+          return `
+            <div class="item-row">
+              <div class="item-left">
+                ${thumbHtml}
+                <div class="item-info">
+                  <div class="item-name">${escapeHtml(item.name)}</div>
+                  <div class="variant-pills">${variantPillsHtml}</div>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn-small" onclick="startItemEdit(${item.id})">Edit</button>
+                <button class="btn-small btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      return `
+        <div class="category-block">
+          ${categoryHeaderHtml}
+          <div class="item-list">${itemsHtml}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderDropdowns() {
+    const takeSelect = document.getElementById('takeSelect');
+    let takeOptions = '<option value="" disabled selected>Select item & size</option>';
+    
+    data.forEach(cat => {
+      let groupOptions = '';
+      cat.items.forEach(item => {
+        item.variants.forEach(variant => {
+          if (variant.quantity > 0) {
+            const inCart = cart.find(c => c.itemId === item.id && c.size === variant.size);
+            const remaining = variant.quantity - (inCart ? inCart.qty : 0);
+            if (remaining > 0) {
+              const optVal = `${item.id}___${variant.size}`;
+              groupOptions += `<option value="${optVal}">${escapeHtml(item.name)} — Size ${escapeHtml(variant.size)} (${remaining} left)</option>`;
+            }
+          }
+        });
+      });
+      if (groupOptions) {
+        takeOptions += `<optgroup label="${escapeHtml(cat.name)}">${groupOptions}</optgroup>`;
+      }
+    });
+    takeSelect.innerHTML = takeOptions;
+
+    const catSelect = document.getElementById('categorySelect');
+    let catOptions = '<option value="" disabled selected>Select category</option>';
+    data.forEach(cat => {
+      catOptions += `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
+    });
+    catSelect.innerHTML = catOptions;
+  }
+
+  function renderCart() {
+    const cartSection = document.getElementById('cartSection');
+    const cartList = document.getElementById('cartList');
+
+    if (cart.length === 0) {
+      cartSection.style.display = 'none';
+      return;
+    }
+
+    cartSection.style.display = 'block';
+    cartList.innerHTML = cart.map((cartItem, idx) => {
+      const found = findItem(cartItem.itemId);
+      const name = found ? found.item.name : 'Unknown Item';
+      return `
+        <div class="cart-item">
+          <span><strong>${escapeHtml(name)}</strong> (Size: ${escapeHtml(cartItem.size)}) &times; ${cartItem.qty}</span>
+          <button class="btn-small btn-danger" onclick="removeFromCart(${idx})">Remove</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderHistory() {
+    const historyList = document.getElementById('historyList');
+    if (historyLogs.length === 0) {
+      historyList.innerHTML = `<div class="empty-state">No checkouts recorded yet.</div>`;
+      return;
+    }
+
+    historyList.innerHTML = historyLogs.map(log => `
+      <div class="history-item">
+        <div class="history-meta">
+          <span class="history-user">${escapeHtml(log.user)}</span>
+          <span>${log.timestamp}</span>
+        </div>
+        <div class="history-tags">
+          ${log.items.map(i => `<span class="history-tag"><strong>${escapeHtml(i.name)}</strong> (${escapeHtml(i.size)}): ${i.qty}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // --- Take Swag Handlers ---
+  document.getElementById('addToCartForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = document.getElementById('takeSelect').value;
+    if (!val) return;
+
+    const [itemIdStr, size] = val.split('___');
+    const itemId = Number(itemIdStr);
+    const qty = parseInt(document.getElementById('takeQty').value, 10);
+    const found = findItem(itemId);
+
+    if (!found) return;
+    const variant = found.item.variants.find(v => v.size === size);
+    if (!variant) return;
+
+    const existingInCart = cart.find(c => c.itemId === itemId && c.size === size);
+    const currentCartQty = existingInCart ? existingInCart.qty : 0;
+    const requestedTotal = currentCartQty + qty;
+
+    if (requestedTotal > variant.quantity) {
+      alert(`Cannot add ${qty}. Only ${variant.quantity - currentCartQty} available in size ${size}.`);
+      return;
+    }
+
+    if (existingInCart) {
+      existingInCart.qty += qty;
+    } else {
+      cart.push({ itemId, size, qty });
+    }
+
+    document.getElementById('takeQty').value = '';
+    renderDropdowns();
+    renderCart();
+  });
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    renderDropdowns();
+    renderCart();
+  }
+
+  document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (cart.length === 0) return;
+
+    const nameInput = document.getElementById('takerName');
+    const userName = nameInput.value.trim();
+    if (!userName) {
+      alert('Please enter your name.');
+      return;
+    }
+
+    // Final stock check
+    for (const c of cart) {
+      const found = findItem(c.itemId);
+      if (!found) {
+        alert('An item in your list no longer exists.');
+        return;
+      }
+      const v = found.item.variants.find(v => v.size === c.size);
+      if (!v || c.qty > v.quantity) {
+        alert(`Stock error for "${found.item.name} (${c.size})".`);
+        return;
+      }
+    }
+
+    const takenItemsLog = [];
+    cart.forEach(c => {
+      const found = findItem(c.itemId);
+      if (found) {
+        const v = found.item.variants.find(v => v.size === c.size);
+        if (v) {
+          v.quantity -= c.qty;
+          takenItemsLog.push({ name: found.item.name, size: c.size, qty: c.qty });
+        }
+      }
+    });
+
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    historyLogs.unshift({
+      id: Date.now(),
+      user: userName,
+      items: takenItemsLog,
+      timestamp: formattedDate
+    });
+
+    // Display confirmation modal before resetting input state
+    showSuccessModal(userName, takenItemsLog);
+
+    cart = [];
+    nameInput.value = '';
+    saveAndRender();
+  });
+
+  function clearHistory() {
+    if (confirm('Are you sure you want to clear the checkout history?')) {
+      historyLogs = [];
+      saveAndRender();
+    }
+  }
+
+  // --- Category Handlers ---
+  document.getElementById('addCategoryForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('newCategoryName');
+    const name = input.value.trim();
+    if (!name) return;
+
+    data.push({ id: Date.now(), name, items: [] });
+    input.value = '';
+    saveAndRender();
+  });
+
+  function startCategoryEdit(id) {
+    editingCategoryId = id;
+    renderInventory();
+  }
+
+  function cancelCategoryEdit() {
+    editingCategoryId = null;
+    renderInventory();
+  }
+
+  function saveCategoryName(id) {
+    const input = document.getElementById(`editCatName-${id}`);
+    const newName = input.value.trim();
+    if (!newName) {
+      alert('Category name cannot be empty.');
+      return;
+    }
+    const cat = data.find(c => c.id === id);
+    if (cat) cat.name = newName;
+    editingCategoryId = null;
+    saveAndRender();
+  }
+
+  function deleteCategory(id) {
+    const cat = data.find(c => c.id === id);
+    if (!cat) return;
+    if (confirm(`Delete "${cat.name}" and all items inside it?`)) {
+      data = data.filter(c => c.id !== id);
+      cart = cart.filter(c => findItem(c.itemId) !== null);
+      if (editingCategoryId === id) editingCategoryId = null;
+      saveAndRender();
+    }
+  }
+
+  // --- Item Handlers ---
+  document.getElementById('addItemForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const catId = Number(document.getElementById('categorySelect').value);
+    const nameInput = document.getElementById('itemName');
+    const sizeInput = document.getElementById('itemSize');
+    const qtyInput = document.getElementById('itemQty');
+    const imageInput = document.getElementById('itemImage');
+
+    const name = nameInput.value.trim();
+    const size = sizeInput.value.trim() || 'One Size';
+    const qty = parseInt(qtyInput.value, 10);
+    const cat = data.find(c => c.id === catId);
+    if (!cat) return;
+
+    compressImage(imageInput.files[0], (base64Img) => {
+      const existingItem = cat.items.find(i => i.name.toLowerCase() === name.toLowerCase());
+
+      if (existingItem) {
+        if (base64Img) existingItem.image = base64Img;
+        const existingVariant = existingItem.variants.find(v => v.size.toLowerCase() === size.toLowerCase());
+        if (existingVariant) {
+          existingVariant.quantity += qty;
+        } else {
+          existingItem.variants.push({ size, quantity: qty });
+        }
+      } else {
+        cat.items.push({
+          id: Date.now(),
+          name,
+          image: base64Img,
+          variants: [{ size, quantity: qty }]
+        });
+      }
+
+      nameInput.value = '';
+      sizeInput.value = '';
+      qtyInput.value = '';
+      imageInput.value = '';
+      saveAndRender();
+    });
+  });
+
+  function startItemEdit(id) {
+    editingItemId = id;
+    renderInventory();
+  }
+
+  function cancelItemEdit() {
+    editingItemId = null;
+    renderInventory();
+  }
+
+  function addVariantRow(itemId) {
+    const list = document.getElementById(`variantEditList-${itemId}`);
+    const newRow = document.createElement('div');
+    newRow.className = 'variant-edit-row';
+    newRow.innerHTML = `
+      <input type="text" class="v-size-input" value="" placeholder="Size" style="max-width: 100px;">
+      <input type="number" class="v-qty-input" value="0" min="0" placeholder="Qty" style="max-width: 80px;">
+      <button type="button" class="btn-small btn-danger" onclick="removeVariantRow(this)">Remove</button>
+    `;
+    list.appendChild(newRow);
+  }
+
+  function removeVariantRow(btn) {
+    btn.parentElement.remove();
+  }
+
+  function saveItemEdit(id) {
+    const nameInput = document.getElementById(`editItemName-${id}`);
+    const fileInput = document.getElementById(`editItemImage-${id}`);
+    const newName = nameInput.value.trim();
+
+    if (!newName) {
+      alert('Item name cannot be empty.');
+      return;
+    }
+
+    const found = findItem(id);
+    if (!found) return;
+
+    const list = document.getElementById(`variantEditList-${id}`);
+    const rows = list.querySelectorAll('.variant-edit-row');
+    const newVariants = [];
+
+    for (const row of rows) {
+      const s = row.querySelector('.v-size-input').value.trim();
+      const q = parseInt(row.querySelector('.v-qty-input').value, 10);
+      if (s && !isNaN(q) && q >= 0) {
+        newVariants.push({ size: s, quantity: q });
+      }
+    }
+
+    if (newVariants.length === 0) {
+      alert('You must have at least one size variant with a valid quantity.');
+      return;
+    }
+
+    const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+    if (file) {
+      compressImage(file, (base64Img) => {
+        found.item.name = newName;
+        found.item.variants = newVariants;
+        found.item.image = base64Img;
+        editingItemId = null;
+        saveAndRender();
+      });
+    } else {
+      found.item.name = newName;
+      found.item.variants = newVariants;
+      editingItemId = null;
+      saveAndRender();
+    }
+  }
+
+  function deleteItem(id) {
+    if (confirm('Are you sure you want to remove this item and all its sizes?')) {
+      data.forEach(cat => {
+        cat.items = cat.items.filter(i => i.id !== id);
+      });
+      cart = cart.filter(c => c.itemId !== id);
+      if (editingItemId === id) editingItemId = null;
+      saveAndRender();
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+  }
+
+  // Initial load
+  saveAndRender();
+</script>
+</body>
+</html>
