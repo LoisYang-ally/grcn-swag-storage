@@ -25,6 +25,22 @@
     h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
     p.subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
 
+    /* Sync Indicator Badge */
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      margin-top: 8px;
+    }
+    .sync-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
+
     /* Navigation Tabs */
     .tab-nav {
       display: flex;
@@ -317,7 +333,7 @@
       width: 100%;
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
       animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes modalPop {
@@ -364,7 +380,11 @@
 <div class="container">
   <header>
     <h1>Google GrCN Play Team Swag Storage</h1>
-    <p class="subtitle">Organize swag by category and size variants with unified photos.</p>
+    <p class="subtitle">Shared cloud inventory with size variants & checkout logs.</p>
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncText">Connecting to Google Sheet...</span>
+    </div>
   </header>
 
   <!-- Sub-page Tabs -->
@@ -424,7 +444,7 @@
     <div class="card">
       <h2>New Category</h2>
       <form id="addCategoryForm" class="form-row">
-        <input type="text" id="newCategoryName" placeholder="Category name (e.g., Stationery)" required>
+        <input type="text" id="newCategoryName" placeholder="Category name (e.g., Everyday & Travel Accessories)" required>
         <button type="submit" class="btn-primary">Create Category</button>
       </form>
     </div>
@@ -459,17 +479,19 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'google_grcn_play_swag_v4_variants';
-  const HISTORY_KEY = 'google_grcn_play_swag_history_v4';
+  // ==============================================================
+  // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
+  // ==============================================================
+  const GOOGLE_SHEET_API_URL = "https://script.google.com/a/macros/google.com/s/AKfycbxypAv5-YASEJp8dfAlvuNuAtgpr_NxdWxfDpr80r7FNnXAqIX0AImjaI5zi0KXPStyyw/exec";
 
-  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+  let data = [
     {
       id: 1,
-      name: 'Clothes',
+      name: 'Apparel',
       items: [
         {
           id: 101,
-          name: 'Play Team Zip Hoodie',
+          name: 'Zip Hoodie',
           image: '',
           variants: [
             { size: 'S', quantity: 8 },
@@ -480,49 +502,114 @@
         },
         {
           id: 102,
-          name: 'Classic T-Shirt',
+          name: 'Vest',
           image: '',
           variants: [
-            { size: 'M', quantity: 20 },
-            { size: 'L', quantity: 25 }
+            { size: 'M', quantity: 10 },
+            { size: 'L', quantity: 10 }
           ]
         }
       ]
     },
     {
       id: 2,
-      name: 'Bags',
+      name: 'Bags & Pouches',
       items: [
         {
           id: 201,
-          name: 'Canvas Tote Bag',
+          name: 'Tote Bag',
           image: '',
-          variants: [
-            { size: 'One Size', quantity: 45 }
-          ]
+          variants: [{ size: 'One Size', quantity: 30 }]
+        },
+        {
+          id: 202,
+          name: 'Wash Bag',
+          image: '',
+          variants: [{ size: 'One Size', quantity: 20 }]
         }
       ]
     },
     {
       id: 3,
-      name: 'Accessories',
+      name: 'Everyday & Travel Accessories',
       items: [
         {
           id: 301,
-          name: 'Enamel Pin Set',
+          name: 'Phone Lanyard',
           image: '',
-          variants: [
-            { size: 'Standard', quantity: 80 }
-          ]
+          variants: [{ size: 'Standard', quantity: 50 }]
+        },
+        {
+          id: 302,
+          name: 'Passport Holder',
+          image: '',
+          variants: [{ size: 'Standard', quantity: 25 }]
         }
       ]
     }
   ];
 
-  let historyLogs = JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  let historyLogs = [];
   let cart = [];
   let editingItemId = null;
   let editingCategoryId = null;
+
+  async function loadFromCloud() {
+    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+      document.getElementById('syncText').textContent = 'Please paste your Google Web App URL';
+      renderInventory();
+      renderDropdowns();
+      return;
+    }
+
+    try {
+      document.getElementById('syncText').textContent = 'Syncing...';
+      const res = await fetch(GOOGLE_SHEET_API_URL);
+      const cloudData = await res.json();
+
+      if (cloudData.inventory && Array.isArray(cloudData.inventory)) {
+        data = cloudData.inventory;
+      }
+      if (cloudData.history && Array.isArray(cloudData.history)) {
+        historyLogs = cloudData.history;
+      }
+
+      document.getElementById('syncText').textContent = 'Google Sheet Connected';
+      document.getElementById('syncDot').style.background = 'var(--success)';
+    } catch (e) {
+      console.error(e);
+      document.getElementById('syncText').textContent = 'Offline / Using Local Data';
+    }
+
+    renderInventory();
+    renderDropdowns();
+    renderCart();
+    renderHistory();
+  }
+
+  async function saveToCloud() {
+    renderInventory();
+    renderDropdowns();
+    renderCart();
+    renderHistory();
+
+    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
+
+    try {
+      document.getElementById('syncText').textContent = 'Saving to Sheet...';
+      const payload = JSON.stringify({ inventory: data, history: historyLogs });
+      await fetch(GOOGLE_SHEET_API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: payload
+      });
+      document.getElementById('syncText').textContent = 'Google Sheet Synced';
+    } catch (e) {
+      console.error(e);
+      document.getElementById('syncText').textContent = 'Save Failed';
+    }
+  }
 
   function switchTab(tabId, evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -534,19 +621,6 @@
     if (tabId === 'historyTab') {
       renderHistory();
     }
-  }
-
-  function saveAndRender() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(historyLogs));
-    } catch (e) {
-      alert('Local storage limit reached. Try uploading smaller pictures.');
-    }
-    renderInventory();
-    renderDropdowns();
-    renderCart();
-    renderHistory();
   }
 
   function findItem(itemId) {
@@ -564,7 +638,7 @@
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const maxDim = 480;
+        const maxDim = 320;
         let width = img.width;
         let height = img.height;
 
@@ -584,7 +658,7 @@
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        callback(canvas.toDataURL('image/jpeg', 0.82));
+        callback(canvas.toDataURL('image/jpeg', 0.75));
       };
       img.src = e.target.result;
     };
@@ -803,7 +877,7 @@
     `).join('');
   }
 
-  // --- Take Swag Handlers ---
+  // --- Handlers ---
   document.getElementById('addToCartForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const val = document.getElementById('takeSelect').value;
@@ -855,7 +929,6 @@
       return;
     }
 
-    // Final stock check
     for (const c of cart) {
       const found = findItem(c.itemId);
       if (!found) {
@@ -891,22 +964,20 @@
       timestamp: formattedDate
     });
 
-    // Display confirmation modal before resetting input state
     showSuccessModal(userName, takenItemsLog);
 
     cart = [];
     nameInput.value = '';
-    saveAndRender();
+    saveToCloud();
   });
 
   function clearHistory() {
     if (confirm('Are you sure you want to clear the checkout history?')) {
       historyLogs = [];
-      saveAndRender();
+      saveToCloud();
     }
   }
 
-  // --- Category Handlers ---
   document.getElementById('addCategoryForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = document.getElementById('newCategoryName');
@@ -915,7 +986,7 @@
 
     data.push({ id: Date.now(), name, items: [] });
     input.value = '';
-    saveAndRender();
+    saveToCloud();
   });
 
   function startCategoryEdit(id) {
@@ -938,7 +1009,7 @@
     const cat = data.find(c => c.id === id);
     if (cat) cat.name = newName;
     editingCategoryId = null;
-    saveAndRender();
+    saveToCloud();
   }
 
   function deleteCategory(id) {
@@ -948,11 +1019,10 @@
       data = data.filter(c => c.id !== id);
       cart = cart.filter(c => findItem(c.itemId) !== null);
       if (editingCategoryId === id) editingCategoryId = null;
-      saveAndRender();
+      saveToCloud();
     }
   }
 
-  // --- Item Handlers ---
   document.getElementById('addItemForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const catId = Number(document.getElementById('categorySelect').value);
@@ -991,7 +1061,7 @@
       sizeInput.value = '';
       qtyInput.value = '';
       imageInput.value = '';
-      saveAndRender();
+      saveToCloud();
     });
   });
 
@@ -1059,13 +1129,13 @@
         found.item.variants = newVariants;
         found.item.image = base64Img;
         editingItemId = null;
-        saveAndRender();
+        saveToCloud();
       });
     } else {
       found.item.name = newName;
       found.item.variants = newVariants;
       editingItemId = null;
-      saveAndRender();
+      saveToCloud();
     }
   }
 
@@ -1076,7 +1146,7 @@
       });
       cart = cart.filter(c => c.itemId !== id);
       if (editingItemId === id) editingItemId = null;
-      saveAndRender();
+      saveToCloud();
     }
   }
 
@@ -1086,8 +1156,8 @@
     }[tag] || tag));
   }
 
-  // Initial load
-  saveAndRender();
+  // Load live data from Google Sheet on start
+  loadFromCloud();
 </script>
 </body>
 </html>
