@@ -483,6 +483,7 @@
   // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
   // ==============================================================
   const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxXnZeTjcLgsS_fnnUIN3XKdlrmHvNj5lzfAoCX-V2BG7nXGfxRhRUQA-10uvanGff4bA/exec";
+  const BACKUP_KEY = 'google_grcn_local_backup_v2';
 
   let data = [
     {
@@ -554,60 +555,90 @@
   let editingItemId = null;
   let editingCategoryId = null;
 
+  // -------------------------------------------------------------
+  // CLOUD SAVE & LOAD LOGIC (WITH IMMEDIATE LOCAL CACHE BACKUP)
+  // -------------------------------------------------------------
+  async function saveToCloud() {
+    // 1. Immediately cache in localStorage so refreshing never loses data
+    try {
+      localStorage.setItem(BACKUP_KEY, JSON.stringify({ inventory: data, history: historyLogs }));
+    } catch (e) {
+      console.warn("Local storage full, skipped local cache");
+    }
+
+    renderInventory();
+    renderDropdowns();
+    renderCart();
+    renderHistory();
+
+    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL.includes("YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL")) return;
+
+    try {
+      document.getElementById('syncText').textContent = 'Saving to Sheet...';
+      const payload = JSON.stringify({ inventory: data, history: historyLogs });
+      
+      await fetch(GOOGLE_SHEET_API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: payload
+      });
+      document.getElementById('syncText').textContent = 'Google Sheet Synced';
+      document.getElementById('syncDot').style.background = 'var(--success)';
+    } catch (e) {
+      console.error("Cloud save error:", e);
+      document.getElementById('syncText').textContent = 'Saved Locally (Sync Pending)';
+    }
+  }
+
   async function loadFromCloud() {
-    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+    // 1. Load local cache first for instant display
+    const localBackup = localStorage.getItem(BACKUP_KEY);
+    if (localBackup) {
+      try {
+        const parsed = JSON.parse(localBackup);
+        if (parsed.inventory && Array.isArray(parsed.inventory)) data = parsed.inventory;
+        if (parsed.history && Array.isArray(parsed.history)) historyLogs = parsed.history;
+      } catch (e) {
+        console.error("Local backup parse error:", e);
+      }
+    }
+
+    renderInventory();
+    renderDropdowns();
+    renderCart();
+    renderHistory();
+
+    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL.includes("YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL")) {
       document.getElementById('syncText').textContent = 'Please paste your Google Web App URL';
-      renderInventory();
-      renderDropdowns();
       return;
     }
 
     try {
       document.getElementById('syncText').textContent = 'Syncing...';
-      const res = await fetch(GOOGLE_SHEET_API_URL);
+      const res = await fetch(GOOGLE_SHEET_API_URL, { method: "GET", redirect: "follow" });
       const cloudData = await res.json();
 
-      if (cloudData.inventory && Array.isArray(cloudData.inventory)) {
+      if (cloudData && cloudData.inventory && Array.isArray(cloudData.inventory)) {
         data = cloudData.inventory;
       }
-      if (cloudData.history && Array.isArray(cloudData.history)) {
+      if (cloudData && cloudData.history && Array.isArray(cloudData.history)) {
         historyLogs = cloudData.history;
       }
 
+      // Update backup cache with the newest data from cloud
+      localStorage.setItem(BACKUP_KEY, JSON.stringify({ inventory: data, history: historyLogs }));
+
       document.getElementById('syncText').textContent = 'Google Sheet Connected';
       document.getElementById('syncDot').style.background = 'var(--success)';
+      
+      renderInventory();
+      renderDropdowns();
+      renderCart();
+      renderHistory();
     } catch (e) {
-      console.error(e);
+      console.error("Cloud load error:", e);
       document.getElementById('syncText').textContent = 'Offline / Using Local Data';
-    }
-
-    renderInventory();
-    renderDropdowns();
-    renderCart();
-    renderHistory();
-  }
-
-  async function saveToCloud() {
-    renderInventory();
-    renderDropdowns();
-    renderCart();
-    renderHistory();
-
-    if (!GOOGLE_SHEET_API_URL || GOOGLE_SHEET_API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") return;
-
-    try {
-      document.getElementById('syncText').textContent = 'Saving to Sheet...';
-      const payload = JSON.stringify({ inventory: data, history: historyLogs });
-      await fetch(GOOGLE_SHEET_API_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: payload
-      });
-      document.getElementById('syncText').textContent = 'Google Sheet Synced';
-    } catch (e) {
-      console.error(e);
-      document.getElementById('syncText').textContent = 'Save Failed';
     }
   }
 
@@ -1156,7 +1187,7 @@
     }[tag] || tag));
   }
 
-  // Load live data from Google Sheet on start
+  // Initial load
   loadFromCloud();
 </script>
 </body>
